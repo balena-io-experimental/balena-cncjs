@@ -1,0 +1,18 @@
+FROM balenalib/%%BALENA_MACHINE_NAME%%-debian:buster as build
+
+RUN install_packages build-essential imagemagick libv4l-dev libjpeg-dev cmake git libraspberrypi-dev
+
+RUN mkdir -p /tmp/mjpg-streamer && \
+  cd /tmp/mjpg-streamer && \
+  git clone https://github.com/jacksonliam/mjpg-streamer.git && \
+  cd mjpg-streamer/mjpg-streamer-experimental && \
+  make && \
+  make install
+
+FROM balenalib/%%BALENA_MACHINE_NAME%%-debian:buster
+
+RUN install_packages imagemagick libv4l-0 libjpeg8 libraspberrypi0
+COPY --from=build /usr/local /usr/local
+EXPOSE 8080
+
+CMD /usr/local/bin/mjpg_streamer -i "input_uvc.so -r 1280x720 -d /dev/video0 -f 30" -o "output_http.so -p 8080 -w /usr/local/share/mjpg-streamer/www"
