@@ -2,7 +2,7 @@
 
 This repo allows you to install [CNC.js](https://cnc.js.org/) on a [Balena](https://balena.io) device with a supported CNC machine connected to either `/dev/ttyAMA0` (the build-in serial UART) or `/dev/ttyUSB0` for USB-connected controllers.
 
-This repo has been tested with a "3018 Pro" hobby CNC machine.
+This repo has been tested with a "3018 Pro" hobby CNC machine and a generic Grbl-based diode laser cutter.
 
 ## Installation
 
@@ -13,7 +13,7 @@ This repo has been tested with a "3018 Pro" hobby CNC machine.
 5. Run `balena devices supported` to find the SLUG for the device you are using.
 6. Run `balena app create CNCMachine --type <device-slug>`. In my case I used `raspberry-pi2` for the device slug.
 7. Download and flash a balenaOS image for your application.  The easiest way is to click "add device" in the Balena dashboard (don't forget to set the WiFi credentials if needed) and use [Etcher](https://www.balena.io/etcher/) to write the image to your device or an SD card.
-8. Run `balena env add RESIN_HOST_CONFIG_gpu_mem 128 --application CNCMachine` and `balena env add RESIN_HOST_CONFIG_start_x 1 --application CNCMachine` to enable the Raspbery Pi camera module.
+8. Run `balena env add RESIN_HOST_CONFIG_gpu_mem 128 --application CNCMachine` and `balena env add RESIN_HOST_CONFIG_start_x 1 --application CNCMachine` to enable the Raspbery Pi camera module if you're using one.
 9. Power on your device.
 10. Clone or download this repo.
 11. Run `balena push CNCMachine` in the downloaded repo folder.
@@ -22,7 +22,9 @@ Balena Cloud will now build the configuration and docker images for your device 
 
 ## Usage
 
-In the Balena Cloud dashboard you should be able to see your device's IP address on your local network.  Open your browser and type `http://A.B.C.D/` replacing `A.B.C.D` with the IP address of your device.  If you require remote access to your device you can enable the public device URL feature on balena cloud and access it via a generated HTTPS URL.  If you enable public access I strongly encourage you to enable authentication in the CNC.js UI.
+In the Balena Cloud dashboard (or by running `balena devices -a CNCMachine`) you should be able to see your device's name.  Open your browser and type `http://<device-name>.local/` replacing `<device-name>` with the name of your device.  You may want to change the device's name to something easier to identify, like `cnc-router` or `laser-cutter` to aid in discoverability.
+
+If you require remote access to your device you can enable the public device URL feature on Balena cloud and access it via a generated HTTPS URL.  If you enable public access I strongly encourage you to enable authentication in the CNC.js UI.
 
 ### Connecting to your CNC machine
 
@@ -34,7 +36,7 @@ Remember to run `balena push CNCMachine` whenever you make changes so that they 
 
 I use a Raspberry Pi camera to help monitor my jobs.  You will need to configure the camera widget to manually connect to `/camera?action=stream`.
 
-If you don't have or don't want to use a Raspberry Pi camera (or you're not even using a Raspberry Pi!) then you will need follow the instructions in `proxy/nginx.conf` and `docker-compose.yml` to remove camera support.
+If you don't have or don't want to use a Raspberry Pi camera (or you're not even using a Raspberry Pi!) then that's fine. This project should detect the lack of a camera and quietly ignore it.
 
 Remember to run `balena push CNCMachine` whenever you make changes so that they can be built and deployed to your devices.
 

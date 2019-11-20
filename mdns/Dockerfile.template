@@ -1,0 +1,32 @@
+FROM balenalib/%%BALENA_MACHINE_NAME%%-debian-node:10-buster-build as base
+
+RUN install_packages libdbus-glib-1-dev
+
+WORKDIR /usr/src/app
+
+# Copies the package.json first for better cache on later pushes
+COPY package.json package-lock.json /usr/src/app/
+
+# Install the publisher
+RUN JOBS=MAX npm ci --unsafe-perm --production && npm cache clean --force && rm -rf /tmp/*
+
+# Build service
+FROM base as build
+
+RUN JOBS=MAX npm ci
+
+COPY . /usr/src/app/
+
+RUN JOBS=MAX npm run build
+
+# Final image
+FROM balenalib/%%BALENA_MACHINE_NAME%%-debian-node:buster
+
+# Copy built code
+COPY --from=build /usr/src/app/build /usr/src/app/build
+COPY --from=build /usr/src/app/bin /usr/src/app/bin
+COPY --from=base /usr/src/app/node_modules /usr/src/app/node_modules
+
+ENV DBUS_SYSTEM_BUS_ADDRESS 'unix:path=/host/run/dbus/system_bus_socket'
+
+CMD /usr/src/app/bin/balena-mdns-publisher

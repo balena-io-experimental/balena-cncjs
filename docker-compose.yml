@@ -29,3 +29,22 @@ services:
       - cncjs
     ports:
       - "80:80"
+
+  mdns:
+    build: ./mdns
+    network_mode: host
+    depends_on:
+      - proxy
+    cap_add:
+      - SYS_RESOURCE
+      - SYS_ADMIN
+    security_opt:
+      - "apparmor:unconfined"
+    tmpfs:
+      - /run
+      - /sys/fs/cgroup
+    labels:
+      io.balena.features.dbus: "1"
+      io.balena.features.supervisor-api: "1"
+    environment:
+      MDNS_TLD: local
