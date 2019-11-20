@@ -15,4 +15,8 @@ RUN install_packages imagemagick libv4l-0 libjpeg8 libraspberrypi0
 COPY --from=build /usr/local /usr/local
 EXPOSE 8080
 
-CMD /usr/local/bin/mjpg_streamer -i "input_uvc.so -r 1280x720 -d /dev/video0 -f 30" -o "output_http.so -p 8080 -w /usr/local/share/mjpg-streamer/www"
+RUN mkdir /app
+WORKDIR /app
+ADD start.sh /app
+
+CMD sh /app/start.sh /dev/video0

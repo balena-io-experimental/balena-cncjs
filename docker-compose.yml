@@ -17,21 +17,15 @@ services:
     volumes:
       - "cnc-config:/config"
 
-  # Comment out this service if you're not using a camera.
   mjpg-streamer:
     build: ./mjpg-streamer
-    devices:
-      - "/dev/video0:/dev/video0"
-    cap_add:
-      - SYS_RAWIO
+    privileged: true
     expose:
       - "8080"
 
   proxy:
     build: ./proxy
-    # Remove mjpg-stream from the list below if you're not using a camera.
     depends_on:
       - cncjs
-      - mjpg-streamer
     ports:
       - "80:80"
