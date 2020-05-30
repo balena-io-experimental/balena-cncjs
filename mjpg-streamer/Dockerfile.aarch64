@@ -1,0 +1,22 @@
+FROM balenalib/raspberrypi3-debian:jessie-build AS build
+
+RUN install_packages build-essential imagemagick libv4l-dev libjpeg-dev cmake git libraspberrypi-dev
+
+RUN mkdir -p /tmp/mjpg-streamer && \
+  cd /tmp/mjpg-streamer && \
+  git clone https://github.com/jacksonliam/mjpg-streamer.git && \
+  cd mjpg-streamer/mjpg-streamer-experimental && \
+  make && \
+  make install
+
+FROM  balenalib/raspberrypi3-debian:jessie
+
+RUN install_packages imagemagick libv4l-0 libjpeg8 libraspberrypi0
+COPY --from=build /usr/local /usr/local
+EXPOSE 8080
+
+RUN mkdir /app
+WORKDIR /app
+ADD start.sh /app
+
+CMD sh /app/start.sh /dev/video0
