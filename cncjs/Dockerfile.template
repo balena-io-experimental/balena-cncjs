@@ -10,4 +10,4 @@ EXPOSE 8000
 
 RUN mkdir /config
 
-CMD /usr/local/bin/cnc -H 0.0.0.0 -p 8000 -c /config/cncrc
+CMD /usr/local/bin/cncjs -H 0.0.0.0 -p 8000 -c /config/cncrc
